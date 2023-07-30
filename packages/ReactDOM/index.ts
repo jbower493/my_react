@@ -4,7 +4,7 @@ const mapAttributeNameToEventName = (attributeName) => {
     switch (attributeName) {
         case "onClick":
             return "click";
-        case "onchange":
+        case "onChange":
             return "change";
         default:
             return "";

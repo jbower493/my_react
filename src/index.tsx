@@ -1,4 +1,4 @@
-import React, { useState } from "../packages/React";
+import React, { useState, useEffect } from "../packages/React";
 import { render } from "../packages/ReactDOM";
 
 const Counter = () => {
@@ -21,15 +21,37 @@ const Namer = () => {
                 placeholder="name"
                 type="text"
                 value={name}
-                onchange={(e) => setName(e.target.value)}
+                onChange={(e) => setName(e.target.value)}
             />
             <h3>Name: {name}</h3>
         </div>
     );
 };
 
-const Empty = () => {
-    return <div>I feel so empty</div>;
+const Effective = () => {
+    const [effectiveness, setEffectiveness] = useState(0);
+    const [irrelevance, setIrrelevance] = useState(0);
+
+    useEffect(() => {
+        console.log("use effect ran");
+
+        return () => {
+            console.log("cleaned up");
+        };
+    }, [effectiveness]);
+
+    return (
+        <div>
+            <button onClick={() => setEffectiveness(effectiveness + 1)}>
+                Become More Effective
+            </button>
+            <span>Effectiveness: {effectiveness}</span>
+            <button onClick={() => setIrrelevance(irrelevance + 1)}>
+                Become More Irrelevant
+            </button>
+            <span>Irrelevance: {irrelevance}</span>
+        </div>
+    );
 };
 
 const App = () => (
@@ -37,7 +59,7 @@ const App = () => (
         <h1>Hello</h1>
         <Namer />
         <Counter />
-        <Empty />
+        <Effective />
     </div>
 );
 
