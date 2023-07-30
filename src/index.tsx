@@ -1,86 +1,22 @@
-const mapAttributeNameToEventName = (attributeName) => {
-    switch (attributeName) {
-        case "onClick":
-            return "click";
-        case "onchange":
-            return "change";
-        default:
-            return "";
-    }
+import React, { useState } from "../packages/React";
+import { render } from "../packages/ReactDOM";
+
+const Counter = () => {
+    const [count, setCount] = useState(0);
+
+    return (
+        <div>
+            <button onClick={() => setCount(count + 1)}>Increment Count</button>
+            <h3>Count: {count}</h3>
+        </div>
+    );
 };
-
-const React = {
-    createElement: (tag, props, ...children) => {
-        if (typeof tag === "function") {
-            return tag(props);
-        }
-
-        // Filter out source and self from props
-        const { __source, __self, ...restProps } = props;
-
-        const element = {
-            tag,
-            props: {
-                ...restProps,
-                children,
-            },
-        };
-
-        return element;
-    },
-    useState(initialState) {
-        let state = initialState;
-
-        function setState(newState) {
-            console.log("set state called with: ", newState);
-        }
-
-        return [state, setState];
-    },
-};
-
-const ReactDOM = {
-    render: (element, container: HTMLElement) => {
-        // Create dom element
-        const domElement: HTMLElement = document.createElement(element.tag);
-
-        // If the element is a primitive type, add it as text
-        if (["string", "number"].includes(typeof element)) {
-            return container.appendChild(document.createTextNode(element));
-        }
-
-        const { children, ...restProps } = element.props;
-
-        // Pass all props to dom element
-        Object.keys(restProps).forEach((prop) => {
-            if (typeof restProps[prop] === "function") {
-                domElement.addEventListener(
-                    mapAttributeNameToEventName(prop),
-                    restProps[prop]
-                );
-            }
-            domElement.setAttribute(prop, restProps[prop]);
-        });
-
-        // Recursively render children
-        children.forEach((child) => ReactDOM.render(child, domElement));
-
-        container.appendChild(domElement);
-    },
-};
-
-/***** APPLICATION START *****/
-const { useState } = React;
-const { render } = ReactDOM;
 
 const Namer = () => {
     const [name, setName] = useState("Kenny");
 
     return (
         <div>
-            <div>
-                <button onClick={() => console.log("clicked")}>Click me</button>
-            </div>
             <input
                 placeholder="name"
                 type="text"
@@ -92,11 +28,17 @@ const Namer = () => {
     );
 };
 
+const Empty = () => {
+    return <div>I feel so empty</div>;
+};
+
 const App = () => (
     <div>
         <h1>Hello</h1>
         <Namer />
+        <Counter />
+        <Empty />
     </div>
 );
 
-render(<Namer />, document.getElementById("app")!);
+render(<App />, document.getElementById("app"));

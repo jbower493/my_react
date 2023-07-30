@@ -1,4 +1,4 @@
-const mapAttributeNameToEventName = (attributeName)=>{
+/***** LIB CODE *****/ const mapAttributeNameToEventName = (attributeName)=>{
     switch(attributeName){
         case "onClick":
             return "click";
@@ -22,13 +22,26 @@ const React = {
         };
         return element;
     },
+    state: {
+        counter: 0,
+        value: []
+    },
     useState (initialState) {
-        let state = initialState;
+        // Take a snapshot of the current counter so that we can increment the counter before we read the current state
+        const currentCounter = React.state.counter;
+        // Increment the counter to be used by the next instance of useState
+        React.state.counter++;
+        // If the state doesn't exist yet, initialize it
+        if (React.state.value[currentCounter] === undefined) React.state.value[currentCounter] = initialState;
         function setState(newState) {
-            console.log("set state called with: ", newState);
+            // Update the state
+            React.state.value[currentCounter] = newState;
+            // Reset the counter then rerender everything
+            React.state.counter = 0;
+            ReactDOM.reRender();
         }
         return [
-            state,
+            React.state.value[currentCounter],
             setState
         ];
     }
@@ -51,49 +64,72 @@ const ReactDOM = {
         // Recursively render children
         children.forEach((child)=>ReactDOM.render(child, domElement));
         container.appendChild(domElement);
+    },
+    reRender () {
+        const container = document.getElementById("app");
+        container.innerHTML = "";
+        ReactDOM.render(/*#__PURE__*/ React.createElement(App, {
+            __source: {
+                fileName: "src/index.tsx",
+                lineNumber: 93,
+                columnNumber: 25
+            },
+            __self: this
+        }), container);
     }
 };
 /***** APPLICATION START *****/ const { useState } = React;
 const { render } = ReactDOM;
+const Counter = ()=>{
+    const [count, setCount] = useState(0);
+    return /*#__PURE__*/ React.createElement("div", {
+        __source: {
+            fileName: "src/index.tsx",
+            lineNumber: 105,
+            columnNumber: 9
+        },
+        __self: this
+    }, /*#__PURE__*/ React.createElement("button", {
+        onClick: ()=>setCount(count + 1),
+        __source: {
+            fileName: "src/index.tsx",
+            lineNumber: 106,
+            columnNumber: 13
+        },
+        __self: this
+    }, "Increment Count"), /*#__PURE__*/ React.createElement("h3", {
+        __source: {
+            fileName: "src/index.tsx",
+            lineNumber: 107,
+            columnNumber: 13
+        },
+        __self: this
+    }, "Count: ", count));
+};
 const Namer = ()=>{
     const [name, setName] = useState("Kenny");
     return /*#__PURE__*/ React.createElement("div", {
         __source: {
             fileName: "src/index.tsx",
-            lineNumber: 80,
+            lineNumber: 116,
             columnNumber: 9
         },
         __self: this
-    }, /*#__PURE__*/ React.createElement("div", {
-        __source: {
-            fileName: "src/index.tsx",
-            lineNumber: 81,
-            columnNumber: 13
-        },
-        __self: this
-    }, /*#__PURE__*/ React.createElement("button", {
-        onClick: ()=>console.log("clicked"),
-        __source: {
-            fileName: "src/index.tsx",
-            lineNumber: 82,
-            columnNumber: 17
-        },
-        __self: this
-    }, "Click me")), /*#__PURE__*/ React.createElement("input", {
+    }, /*#__PURE__*/ React.createElement("input", {
         placeholder: "name",
         type: "text",
         value: name,
         onchange: (e)=>setName(e.target.value),
         __source: {
             fileName: "src/index.tsx",
-            lineNumber: 84,
+            lineNumber: 117,
             columnNumber: 13
         },
         __self: this
     }), /*#__PURE__*/ React.createElement("h3", {
         __source: {
             fileName: "src/index.tsx",
-            lineNumber: 90,
+            lineNumber: 123,
             columnNumber: 13
         },
         __self: this
@@ -102,29 +138,36 @@ const Namer = ()=>{
 const App = ()=>/*#__PURE__*/ React.createElement("div", {
         __source: {
             fileName: "src/index.tsx",
-            lineNumber: 96,
+            lineNumber: 129,
             columnNumber: 5
         },
         __self: this
     }, /*#__PURE__*/ React.createElement("h1", {
         __source: {
             fileName: "src/index.tsx",
-            lineNumber: 97,
+            lineNumber: 130,
             columnNumber: 9
         },
         __self: this
     }, "Hello"), /*#__PURE__*/ React.createElement(Namer, {
         __source: {
             fileName: "src/index.tsx",
-            lineNumber: 98,
+            lineNumber: 131,
+            columnNumber: 9
+        },
+        __self: this
+    }), /*#__PURE__*/ React.createElement(Counter, {
+        __source: {
+            fileName: "src/index.tsx",
+            lineNumber: 132,
             columnNumber: 9
         },
         __self: this
     }));
-render(/*#__PURE__*/ React.createElement(Namer, {
+render(/*#__PURE__*/ React.createElement(App, {
     __source: {
         fileName: "src/index.tsx",
-        lineNumber: 102,
+        lineNumber: 136,
         columnNumber: 8
     },
     __self: this
