@@ -1,7 +1,12 @@
-import { reRender } from "../ReactDOM";
+import { reRender } from "../../ReactDOM";
+import { HtmlTags } from "./types";
 
 const React: { createElement: any; initialRender: any[] } = {
-    createElement(tag, props, ...children) {
+    createElement(
+        tag: HtmlTags | ((props: any) => void),
+        props: any,
+        ...children: any
+    ) {
         // If its the root render, capture the args for use in ReactDOM.reRender
         if (React.initialRender.length === 0) {
             React.initialRender = [tag, props, ...children];
@@ -27,12 +32,15 @@ const React: { createElement: any; initialRender: any[] } = {
     initialRender: [],
 };
 
-const hooks = {
+const hooks: {
+    counter: number;
+    value: any[];
+} = {
     counter: 0,
     value: [],
 };
 
-export function useState(initialState) {
+export function useState<T>(initialState: T) {
     // Take a snapshot of the current counter so that we can increment the counter before we read the current value
     const frozenCursor = hooks.counter;
 
@@ -44,7 +52,7 @@ export function useState(initialState) {
         hooks.value[frozenCursor] = initialState;
     }
 
-    function setState(newState) {
+    function setState(newState: T) {
         // Update the state
         hooks.value[frozenCursor] = newState;
 
@@ -56,7 +64,7 @@ export function useState(initialState) {
     return [hooks.value[frozenCursor], setState];
 }
 
-export function useEffect(callback, dependencies) {
+export function useEffect(callback: () => void, dependencies: any[]) {
     // Take a snapshot of the current counter so that we can increment the counter before we read the current value
     const frozenCursor = hooks.counter;
     const frozenDeps = hooks.value[frozenCursor];
@@ -71,15 +79,17 @@ export function useEffect(callback, dependencies) {
     if (
         frozenDeps &&
         frozenDeps.every(
-            (frozenDep, index) => frozenDep === dependencies[index]
+            (frozenDep: any, index: number) => frozenDep === dependencies[index]
         )
     ) {
-        console.log("deps havent changed");
         return;
     }
 
     // TODO: find a way to run this on unmount of the component that runs the effect
     cleanupFunc = callback();
 }
+
+// TODO: implement a reconciler so that components only rerender when they need to
+export function reconcile() {}
 
 export default React;
