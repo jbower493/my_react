@@ -24,7 +24,7 @@ export class Reconciler {
 
         // Create vdom
         const vdom = createVdom(reactElement);
-        console.log(vdom);
+
         // Traverse vdom and render the nodes by calling functions provided by the host config
         function traversalCallback(node) {
             if (typeof node.type === "function") {

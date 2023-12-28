@@ -1,10 +1,30 @@
 import { Reconciler } from "../react/reconciler";
+import { mapEventName } from "./utils";
 
 const hostConfig = {
-    createNode(nodeProperties) {
-        const node = document.createElement(nodeProperties.type);
+    createNode(reactNode) {
+        const hostNode = document.createElement(reactNode.type);
 
-        return node;
+        // Pass all props to dom element
+        Object.keys(reactNode.props).forEach((prop) => {
+            if (prop === "children") {
+                return;
+            }
+
+            if (typeof reactNode.props[prop] === "function") {
+                return hostNode.addEventListener(
+                    mapEventName(prop),
+                    reactNode.props[prop]
+                );
+            }
+
+            hostNode.setAttribute(
+                prop === "className" ? "class" : prop,
+                reactNode.props[prop]
+            );
+        });
+
+        return hostNode;
     },
 
     createTextNode(text) {

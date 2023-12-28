@@ -15,7 +15,12 @@ export default function App() {
 
     return (
         <div className="app">
-            <h1>Hello name</h1>
+            <h1
+                id="headingOne"
+                onClick={() => console.log("click event worked")}
+            >
+                Hello name
+            </h1>
             <p>
                 My name is <strong>Jamie</strong>
             </p>
