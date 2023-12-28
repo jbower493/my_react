@@ -52,7 +52,7 @@ function vdomNaryToBinary(root, parent) {
     if (rootChildren) {
         // Hack to be able to attach siblings of text nodes to the text node
         rootChildren = rootChildren.flat().map((child) => {
-            if (typeof child === "string") {
+            if (["string", "number"].includes(typeof child)) {
                 return {
                     isString: true,
                     string: child,
