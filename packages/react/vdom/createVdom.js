@@ -44,9 +44,12 @@ function vdomNaryToBinary(root, parent) {
         };
     }
 
-    if (root.props.children) {
+    let rootChildren =
+        typeof root.type === "function" ? [root.type()] : root.props.children;
+
+    if (rootChildren) {
         // Hack to be able to attach siblings of text nodes to the text node
-        root.props.children = root.props.children.map((child) => {
+        rootChildren = rootChildren.map((child) => {
             if (typeof child === "string") {
                 return {
                     isString: true,
@@ -57,18 +60,12 @@ function vdomNaryToBinary(root, parent) {
             return child;
         });
 
-        for (let i = root.props.children.length - 1; i >= 0; i--) {
+        for (let i = rootChildren.length - 1; i >= 0; i--) {
             if (i > 0) {
-                const childSubtree = vdomNaryToBinary(
-                    root.props.children[i],
-                    root
-                );
-                root.props.children[i - 1].sibling = childSubtree;
+                const childSubtree = vdomNaryToBinary(rootChildren[i], root);
+                rootChildren[i - 1].sibling = childSubtree;
             } else {
-                const childSubtree = vdomNaryToBinary(
-                    root.props.children[i],
-                    root
-                );
+                const childSubtree = vdomNaryToBinary(rootChildren[i], root);
                 root.child = childSubtree;
             }
         }
