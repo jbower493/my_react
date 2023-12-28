@@ -27,18 +27,9 @@ export class Reconciler {
 
         // Traverse vdom and render the nodes by calling functions provided by the host config
         function traversalCallback(node) {
-            const element = hostConfig.createNode(node);
-
-            if (
-                node.props.children.length === 1 &&
-                typeof node.props.children[0] === "string"
-            ) {
-                const textNode = hostConfig.createTextNode(
-                    node.props.children[0]
-                );
-
-                hostConfig.appendChildToParent(element, textNode);
-            }
+            const element = node.type
+                ? hostConfig.createNode(node)
+                : hostConfig.createTextNode(node.props);
 
             const nodeToAppendTo = node.parent
                 ? node.parent.stateNode

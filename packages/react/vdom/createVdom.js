@@ -33,12 +33,30 @@ function naryToBinary(root) {
 }
 
 function vdomNaryToBinary(root, parent) {
-    // If it's a text node, don't create a vdom node. props.children will handle text nodes
-    if (typeof root === "string") {
-        return null;
+    // If it's a text node, set its type to null and it's props to the text
+    if (root.isString) {
+        return {
+            type: null,
+            props: root.string,
+            child: null,
+            sibling: root.sibling || null,
+            parent,
+        };
     }
 
     if (root.props.children) {
+        // Hack to be able to attach siblings of text nodes to the text node
+        root.props.children = root.props.children.map((child) => {
+            if (typeof child === "string") {
+                return {
+                    isString: true,
+                    string: child,
+                };
+            }
+
+            return child;
+        });
+
         for (let i = root.props.children.length - 1; i >= 0; i--) {
             if (i > 0) {
                 const childSubtree = vdomNaryToBinary(
