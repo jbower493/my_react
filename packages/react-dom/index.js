@@ -1,12 +1,32 @@
 import { Reconciler } from "../react/reconciler";
 
-const hostConfig = {};
+const hostConfig = {
+    createNode(nodeProperties) {
+        const node = document.createElement(nodeProperties.type);
+
+        return node;
+    },
+
+    createTextNode(text) {
+        const textNode = document.createTextNode(text);
+
+        return textNode;
+    },
+
+    appendChildToParent(parentNode, childNode) {
+        parentNode.appendChild(childNode);
+    },
+
+    removeNode(node) {
+        node.remove();
+    },
+};
 
 const myReconciler = new Reconciler(hostConfig);
 
 function render(reactElement, domElement) {
     // Temp
-    const vdom = myReconciler.createVirtualDom(reactElement);
+    myReconciler.render(reactElement, domElement);
 
     // if (!domElement._reactRootContainer) {
     //     domElement._reactRootContainer =

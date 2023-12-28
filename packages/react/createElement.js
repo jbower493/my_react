@@ -2,7 +2,7 @@ export function createElement(tag, props, ...children) {
     const { __source, __self, ...restProps } = props;
 
     const reactElement = {
-        tag,
+        type: tag,
         props: {
             ...restProps,
             children,

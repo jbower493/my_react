@@ -4,16 +4,17 @@ import React from "../packages/react";
 import App from "./app";
 
 const root = document.getElementById("root");
-ReactDomRenderer.render(<App />, root);
-// ReactDomRenderer.render(
-//     <div>
-//         <p>
-//             Hello
-//             <span>Bob</span>
-//             <strong>Smith</strong>
-//         </p>
-//         <p>How are you?</p>
-//         <p>Something</p>
-//     </div>,
-//     root
-// );
+// ReactDomRenderer.render(<div>Mate</div>, root);
+// ReactDomRenderer.render(<App />, root);
+ReactDomRenderer.render(
+    <section>
+        <p>
+            Message:
+            <span>Hello</span>
+            <strong>world</strong>
+        </p>
+        <p>adsfd</p>
+        <p>asdffds</p>
+    </section>,
+    root
+);
