@@ -1,15 +1,13 @@
 import React from "../packages/react";
 
-function Kevin() {
+function Kevin(props) {
     return (
         <aside>
             <h4>Aside from Kevin, it's all good</h4>
+            <h6>Dude</h6>
+            {props.children}
         </aside>
     );
-}
-
-function KevinsDad() {
-    return <Kevin />;
 }
 
 export default function App() {
@@ -21,7 +19,7 @@ export default function App() {
             <p>
                 My name is <strong>Jamie</strong>
             </p>
-            <KevinsDad />
+            <Kevin>in the hood</Kevin>
         </div>
     );
 }

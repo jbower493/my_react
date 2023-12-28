@@ -45,11 +45,13 @@ function vdomNaryToBinary(root, parent) {
     }
 
     let rootChildren =
-        typeof root.type === "function" ? [root.type()] : root.props.children;
+        typeof root.type === "function"
+            ? [root.type(root.props)]
+            : root.props.children;
 
     if (rootChildren) {
         // Hack to be able to attach siblings of text nodes to the text node
-        rootChildren = rootChildren.map((child) => {
+        rootChildren = rootChildren.flat().map((child) => {
             if (typeof child === "string") {
                 return {
                     isString: true,

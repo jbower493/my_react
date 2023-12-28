@@ -5,7 +5,7 @@ export function createElement(tag, props, ...children) {
         type: tag,
         props: {
             ...restProps,
-            children,
+            children: props.children || children,
         },
     };
 
