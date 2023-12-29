@@ -19,11 +19,12 @@ export class Reconciler {
 
     updateContainer(reactElement, container) {}
 
+    // Temp
     render(reactElement, hostElement) {
         const { hostConfig } = this;
 
         // Create vdom
-        const vdom = createVdom(reactElement);
+        window.vdom = createVdom(reactElement);
 
         // Traverse vdom and render the nodes by calling functions provided by the host config
         function traversalCallback(node) {
@@ -64,6 +65,6 @@ export class Reconciler {
             node.stateNode = element;
         }
 
-        traverseBinaryTree(vdom, traversalCallback);
+        traverseBinaryTree(window.vdom, traversalCallback);
     }
 }

@@ -44,6 +44,11 @@ function vdomNaryToBinary(root, parent) {
         };
     }
 
+    // Set the current state dispatcher to be the current component being called.
+    if (typeof root.type === "function") {
+        window.currentStateDispatcher = root;
+    }
+
     let rootChildren =
         typeof root.type === "function"
             ? [root.type(root.props)]
