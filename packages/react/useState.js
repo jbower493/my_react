@@ -2,16 +2,28 @@
 // - Can't support more than one state per component
 
 export function useState(initialState) {
+    if (!window.currentStateDispatcher.state) {
+        window.currentStateDispatcher.state = {
+            counter: 0,
+            values: [],
+        };
+    }
+
+    const stateObj = window.currentStateDispatcher.state;
+    const frozenCounter = stateObj.counter;
+
+    stateObj.counter++;
+
     // Initialize state if it isn't already
-    if (window.currentStateDispatcher.state === undefined) {
-        window.currentStateDispatcher.state = initialState;
+    if (stateObj.values[frozenCounter] === undefined) {
+        stateObj.values[frozenCounter] = initialState;
     }
 
     // Setter function
     function setState(newState) {
-        window.currentStateDispatcher.state = newState;
+        stateObj.values[frozenCounter] = newState;
     }
 
     // Return state and setter
-    return [window.currentStateDispatcher.state, setState];
+    return [stateObj.values[frozenCounter], setState];
 }

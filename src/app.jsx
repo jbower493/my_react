@@ -13,9 +13,9 @@ function Kevin(props) {
 }
 
 export default function App() {
-    // const [name] = React.useState("Fred");
+    const [name] = React.useState("Cesc");
     const [count, setCount] = React.useState(0);
-    const name = "ken";
+
     return (
         <div className="app">
             <h1 id="headingOne" onClick={() => setCount(count + 1)}>
