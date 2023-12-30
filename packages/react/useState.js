@@ -1,7 +1,9 @@
-// - Doesn't re-render
-// - Can't support more than one state per component
+import { myReconciler } from "../react-dom";
 
+// - Doesn't re-render
 export function useState(initialState) {
+    const frozenRefToThisNode = window.currentStateDispatcher;
+
     if (!window.currentStateDispatcher.state) {
         window.currentStateDispatcher.state = {
             counter: 0,
@@ -22,6 +24,11 @@ export function useState(initialState) {
     // Setter function
     function setState(newState) {
         stateObj.values[frozenCounter] = newState;
+
+        stateObj.counter = 0;
+        // TODO: implement rerender
+
+        myReconciler.rerender(frozenRefToThisNode);
     }
 
     // Return state and setter

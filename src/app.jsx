@@ -1,30 +1,25 @@
 import React from "../packages/react";
 
-function Kevin(props) {
-    const [cousin] = React.useState("Bob");
-
+function Kevin() {
+    const [count, setCount] = React.useState(0);
+    console.log("kevin ran");
     return (
-        <aside>
-            <h4>Aside from Kevin, it's all good</h4>
-            <h6>Dude: {cousin}</h6>
-            {props.children}
-        </aside>
+        <h2 id="headingTwo" onClick={() => setCount(count + 1)}>
+            Kevin's count: {count}
+        </h2>
     );
 }
 
 export default function App() {
-    const [name] = React.useState("Cesc");
+    const [name] = React.useState("Jim");
     const [count, setCount] = React.useState(0);
-
+    console.log("app ran");
     return (
         <div className="app">
             <h1 id="headingOne" onClick={() => setCount(count + 1)}>
-                Hello {count}
+                Main count: {count}
             </h1>
-            <p>
-                My name is <strong>{name}</strong>
-            </p>
-            {/* <Kevin>in the hood</Kevin> */}
+            <Kevin />
         </div>
     );
 }

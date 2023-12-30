@@ -42,7 +42,7 @@ const hostConfig = {
     },
 };
 
-const myReconciler = new Reconciler(hostConfig);
+export const myReconciler = new Reconciler(hostConfig);
 
 function render(reactElement, domElement) {
     // Temp
