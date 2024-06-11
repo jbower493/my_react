@@ -6,12 +6,23 @@ function vdomNaryToBinaryUpdate(root, parent, newType, newProps, newSiblings) {
     const rootClone = _.cloneDeep(root);
     rootClone.alternate = root;
 
-    rootClone.mate = Date.now();
-
     // If it's a text node, return normal text node with new props (sibling should already be set)
     if (root.type === null) {
         rootClone.parent = parent;
         rootClone.props = newProps;
+
+        // This part doesn't work when siblings change order and show/hide and stuff
+        // After incrementing jims count up to 10, kev rerenders but never get's placed back in the dom
+        if (Array.isArray(newSiblings) && newSiblings.length > 0) {
+            const siblingSubtree = vdomNaryToBinaryUpdate(
+                root.sibling,
+                parent,
+                newSiblings[0].type,
+                newSiblings[0].props,
+                newSiblings.slice(1)
+            );
+            rootClone.sibling = siblingSubtree;
+        }
 
         return rootClone;
     }
