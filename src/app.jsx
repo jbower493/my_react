@@ -19,7 +19,11 @@ export default function App() {
             <h1 id="headingOne" onClick={() => setCount(count + 1)}>
                 {name}'s count: {count}
             </h1>
-            {count > 1 && count < 10 ? <div>Its a high count</div> : <Kevin />}
+            {count > 1 && count < 10 ? (
+                <div id="highCount">Its a high count</div>
+            ) : (
+                <Kevin />
+            )}
         </div>
     );
 }

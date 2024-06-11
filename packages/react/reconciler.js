@@ -15,7 +15,7 @@ function flushToHostRerender(hostConfig, hostElement, newVdom) {
     // Traverse vdom and render the nodes by calling functions provided by the host config
     function traversalCallback(node) {
         node.alternate = null;
-
+        if (node.type === "h2") console.log(node);
         if (typeof node.type === "function") {
             return;
         }
@@ -44,12 +44,14 @@ function flushToHostRerender(hostConfig, hostElement, newVdom) {
         }
 
         const nodeToAppendTo = getNodeToAppendTo();
-
+        if (node.type === "h2") console.log(nodeToAppendTo);
         if (!nodeToAppendTo) {
             throw new Error("Cannot find a node to attach to");
         }
 
         hostConfig.appendChildToParent(nodeToAppendTo, element);
+
+        // This is not right, when "highCount" div gets replaced by <Kevin> h2, highcount is set as the stateNode for Kevin vdom node, when it should have no statenode
         node.stateNode = element;
     }
 
