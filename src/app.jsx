@@ -26,26 +26,26 @@ import React from "../packages/react";
 
 function AppKid() {
     const [secondCount, setSecondCount] = React.useState(0);
-
+    console.log("kid rendered");
     return (
         <div>
             <p>{secondCount}</p>
             <button onClick={() => setSecondCount(secondCount + 1)}>
                 Increment second
             </button>
-            <h4>Count</h4>
+            {/* <h4>Count</h4> */}
         </div>
     );
 }
 
 export default function App() {
     const [count, setCount] = React.useState(0);
-    console.log("count: ", count);
+    console.log("App rendered");
     return (
         <div>
             <p>{count}</p>
             <button onClick={() => setCount(count + 1)}>Increment</button>
-            <h2>Count</h2>
+            {/* <h2>Count</h2> */}
             <AppKid />
         </div>
     );

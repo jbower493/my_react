@@ -11,7 +11,52 @@ function traverseBinaryTree(root, callback) {
     traverseBinaryTree(root.sibling, callback);
 }
 
-function flushToHost(hostConfig, hostElement) {
+function flushToHostRerender(hostConfig, hostElement, newVdom) {
+    // Traverse vdom and render the nodes by calling functions provided by the host config
+    function traversalCallback(node) {
+        node.alternate = null;
+
+        if (typeof node.type === "function") {
+            return;
+        }
+
+        const element = node.type
+            ? hostConfig.createNode(node)
+            : hostConfig.createTextNode(node.props);
+
+        function getNodeToAppendTo() {
+            if (!node.parent) {
+                return hostElement;
+            }
+
+            let nearestParentWithStateNode = node.parent;
+
+            while (!nearestParentWithStateNode.stateNode) {
+                if (!nearestParentWithStateNode.parent) {
+                    nearestParentWithStateNode = { stateNode: hostElement };
+                } else {
+                    nearestParentWithStateNode =
+                        nearestParentWithStateNode.parent;
+                }
+            }
+
+            return nearestParentWithStateNode.stateNode;
+        }
+
+        const nodeToAppendTo = getNodeToAppendTo();
+
+        if (!nodeToAppendTo) {
+            throw new Error("Cannot find a node to attach to");
+        }
+
+        hostConfig.appendChildToParent(nodeToAppendTo, element);
+        node.stateNode = element;
+    }
+
+    traverseBinaryTree(newVdom, traversalCallback);
+}
+
+function flushToHost(hostConfig, hostElement, vdom) {
     // Traverse vdom and render the nodes by calling functions provided by the host config
     function traversalCallback(node) {
         if (typeof node.type === "function") {
@@ -51,7 +96,7 @@ function flushToHost(hostConfig, hostElement) {
         node.stateNode = element;
     }
 
-    traverseBinaryTree(window.vdom, traversalCallback);
+    traverseBinaryTree(vdom, traversalCallback);
 }
 
 export class Reconciler {
@@ -70,18 +115,24 @@ export class Reconciler {
         // Create vdom
         window.vdom = createVdom(reactElement);
 
-        flushToHost(hostConfig, hostElement);
+        flushToHost(hostConfig, hostElement, window.vdom);
     }
 
     // Temp
     rerender(vdomNode) {
         const { hostConfig } = this;
 
-        updateVdom(vdomNode);
+        const newVdom = updateVdom(vdomNode);
 
         document.getElementById("root").firstChild.remove();
 
         // Need to properly implement "updateContainer" rather than this
-        flushToHost(hostConfig, document.getElementById("root"));
+        flushToHostRerender(
+            hostConfig,
+            document.getElementById("root"),
+            newVdom
+        );
+
+        window.vdom = newVdom;
     }
 }

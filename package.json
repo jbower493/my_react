@@ -9,5 +9,6 @@
     },
     "scripts": {
         "start": "yarn parcel src/index.html"
-    }
+    },
+    "dependencies": {}
 }

@@ -32,40 +32,33 @@ function naryToBinary(root) {
     return root;
 }
 
-function vdomNaryToBinary(root, parent) {
+export function vdomNaryToBinary(root, parent) {
     // If it's a text node, set its type to null and it's props to the text
-    if (root.isString) {
+    if (root.type === null) {
         return {
             type: null,
-            props: root.string,
+            props: root.props,
             child: null,
             sibling: root.sibling || null,
             parent,
         };
     }
 
-    // Set the current state dispatcher to be the current component being called.
+    let rootChildren = root.props.children;
+
     if (typeof root.type === "function") {
+        // Set the current state dispatcher to be the current component being called.
         window.currentStateDispatcher = root;
+        // Call component to get children
+        rootChildren = [root.type(root.props)];
+
+        root.meta = {
+            tempCalculatedChildren: rootChildren,
+        };
     }
 
-    let rootChildren =
-        typeof root.type === "function"
-            ? [root.type(root.props)]
-            : root.props.children;
-
     if (rootChildren) {
-        // Hack to be able to attach siblings of text nodes to the text node
-        rootChildren = rootChildren.flat().map((child) => {
-            if (["string", "number"].includes(typeof child)) {
-                return {
-                    isString: true,
-                    string: child,
-                };
-            }
-
-            return child;
-        });
+        rootChildren = rootChildren.flat();
 
         for (let i = rootChildren.length - 1; i >= 0; i--) {
             if (i > 0) {

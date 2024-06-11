@@ -1,54 +1,143 @@
-function vdomNaryToBinary(root, parent) {
-    // If it's a text node, set its type to null and it's props to the text
-    if (root.isString) {
-        return {
-            type: null,
-            props: root.string,
-            child: null,
-            sibling: root.sibling || null,
-            parent,
+import { vdomNaryToBinary } from "./createVdom.js";
+import _ from "../../lodashTemp";
+
+function vdomNaryToBinaryUpdate(
+    root,
+    parent,
+    newType,
+    newProps,
+    newSiblings,
+    logIt
+) {
+    // Clone current fiber and set original as it's alternate
+    const rootClone = _.cloneDeep(root);
+    rootClone.alternate = root;
+
+    rootClone.mate = Date.now();
+
+    // If it's a text node, return normal text node with new props (sibling should already be set)
+    if (root.type === null) {
+        rootClone.parent = parent;
+        rootClone.props = newProps;
+
+        return rootClone;
+    }
+
+    // If newType is different, change type of alternate to newType
+    if (newType && newType !== root.type) {
+        rootClone.type = newType;
+    }
+
+    // Reset alternates "child", "sibling" and "parent" properties to null, as they all currently point to the respective properties of the original
+    rootClone.child = null;
+    rootClone.sibling = null;
+    rootClone.parent = null;
+
+    // Set alternate props to new props
+    rootClone.props = newProps || rootClone.props;
+
+    let newChildren = rootClone.props.children;
+
+    // If it's a component fiber and it's not above the rerendered component in the tree, call it again with newProps || old props to get new children. If it's not a component, set newProps on alternate
+    if (typeof rootClone.type === "function") {
+        window.shouldRerender =
+            root === window.rerenderedComponent ||
+            root.meta.lastRenderedNode === window.rerenderedComponent ||
+            window.shouldRerender;
+
+        if (window.shouldRerender) {
+            // Get most up to date state (after setState has been called)
+            rootClone.state =
+                root.meta.lastRenderedNode?.state || rootClone.state;
+
+            // Set the current state dispatcher to be the current component being called.
+            rootClone.state.counter = 0;
+            window.currentStateDispatcher = rootClone;
+
+            // Call component to get children
+            newChildren = [rootClone.type(rootClone.props)];
+
+            // We need to hold on to the last rendered node, because that is the ref that "setState" has (frozenRefToThisNode). This allows us to rerender in future if a node further down in the tree has rerendered since.
+            rootClone.meta.lastRenderedNode = rootClone;
+        } else {
+            newChildren = root.meta.tempCalculatedChildren;
+
+            // * Same as above, except here we grab the previously renedered node because we didn't rerender this node this time
+            rootClone.meta.lastRenderedNode =
+                root.meta.lastRenderedNode || root;
+        }
+
+        rootClone.meta = {
+            ...rootClone.meta,
+            tempCalculatedChildren: newChildren,
         };
     }
 
-    // Set the current state dispatcher to be the current component being called.
-    if (typeof root.type === "function") {
-        window.currentStateDispatcher = root;
-    }
+    if (Array.isArray(newChildren) && newChildren.length > 0) {
+        newChildren = newChildren.flat();
 
-    let rootChildren =
-        typeof root.type === "function"
-            ? [root.type(root.props)]
-            : root.props.children;
-
-    if (rootChildren) {
-        // Hack to be able to attach siblings of text nodes to the text node
-        rootChildren = rootChildren.flat().map((child) => {
-            if (["string", "number"].includes(typeof child)) {
-                return {
-                    isString: true,
-                    string: child,
-                };
+        if (rootClone.type !== root.type) {
+            // If newType is different, do reverse children loop part of createVdom func.
+            for (let i = newChildren.length - 1; i >= 0; i--) {
+                if (i > 0) {
+                    const childSubtree = vdomNaryToBinary(
+                        newChildren[i],
+                        rootClone
+                    );
+                    newChildren[i - 1].sibling = childSubtree;
+                } else {
+                    const childSubtree = vdomNaryToBinary(
+                        newChildren[i],
+                        rootClone
+                    );
+                    rootClone.child = childSubtree;
+                }
             }
-
-            return child;
-        });
-
-        for (let i = rootChildren.length - 1; i >= 0; i--) {
-            if (i > 0) {
-                const childSubtree = vdomNaryToBinary(rootChildren[i], root);
-                rootChildren[i - 1].sibling = childSubtree;
-            } else {
-                const childSubtree = vdomNaryToBinary(rootChildren[i], root);
-                root.child = childSubtree;
-            }
+        } else {
+            // Handle first child
+            const childSubtree = vdomNaryToBinaryUpdate(
+                root.child,
+                rootClone,
+                newChildren[0].type,
+                newChildren[0].props,
+                newChildren.slice(1)
+            );
+            rootClone.child = childSubtree;
         }
     }
 
-    root.parent = parent || null;
+    // Handle first sibling
+    if (Array.isArray(newSiblings) && newSiblings.length > 0) {
+        const siblingSubtree = vdomNaryToBinaryUpdate(
+            root.sibling,
+            parent,
+            newSiblings[0].type,
+            newSiblings[0].props,
+            newSiblings.slice(1)
+        );
+        rootClone.sibling = siblingSubtree;
+    }
 
-    return root;
+    // Set alternante parent
+    rootClone.parent = parent || null;
+
+    // return alternate
+    return rootClone;
 }
 
 export function updateVdom(vdomNode) {
-    vdomNaryToBinary(vdomNode, vdomNode.parent);
+    window.rerenderedComponent = vdomNode;
+
+    const newVdom = vdomNaryToBinaryUpdate(
+        window.vdom,
+        null,
+        null,
+        null,
+        null,
+        true
+    );
+
+    window.shouldRerender = false;
+
+    return newVdom;
 }

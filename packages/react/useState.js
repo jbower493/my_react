@@ -1,6 +1,5 @@
 import { myReconciler } from "../react-dom";
 
-// - Doesn't re-render
 export function useState(initialState) {
     const frozenRefToThisNode = window.currentStateDispatcher;
 
@@ -24,10 +23,6 @@ export function useState(initialState) {
     // Setter function
     function setState(newState) {
         stateObj.values[frozenCounter] = newState;
-
-        stateObj.counter = 0;
-        // TODO: implement rerender
-
         myReconciler.rerender(frozenRefToThisNode);
     }
 
