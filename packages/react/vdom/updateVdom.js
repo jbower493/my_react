@@ -139,5 +139,3 @@ export function updateVdom(vdomNode) {
 
     return newVdom;
 }
-
-// BUG: After incrementing jims count up to 10, kev rerenders but never get's placed back in the dom
