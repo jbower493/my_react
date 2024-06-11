@@ -1,14 +1,7 @@
 import { vdomNaryToBinary } from "./createVdom.js";
 import _ from "../../lodashTemp";
 
-function vdomNaryToBinaryUpdate(
-    root,
-    parent,
-    newType,
-    newProps,
-    newSiblings,
-    logIt
-) {
+function vdomNaryToBinaryUpdate(root, parent, newType, newProps, newSiblings) {
     // Clone current fiber and set original as it's alternate
     const rootClone = _.cloneDeep(root);
     rootClone.alternate = root;
@@ -128,14 +121,7 @@ function vdomNaryToBinaryUpdate(
 export function updateVdom(vdomNode) {
     window.rerenderedComponent = vdomNode;
 
-    const newVdom = vdomNaryToBinaryUpdate(
-        window.vdom,
-        null,
-        null,
-        null,
-        null,
-        true
-    );
+    const newVdom = vdomNaryToBinaryUpdate(window.vdom, null, null, null, null);
 
     window.shouldRerender = false;
 
