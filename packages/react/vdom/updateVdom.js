@@ -28,6 +28,7 @@ function vdomNaryToBinaryUpdate(root, parent, newType, newProps, newSiblings) {
     // If newType is different, change type of alternate to newType
     if (newType && newType !== root.type) {
         rootClone.type = newType;
+        delete rootClone.state;
     }
 
     // Reset alternates "child", "sibling" and "parent" properties to null, as they all currently point to the respective properties of the original
@@ -53,7 +54,9 @@ function vdomNaryToBinaryUpdate(root, parent, newType, newProps, newSiblings) {
                 root.meta.lastRenderedNode?.state || rootClone.state;
 
             // Set the current state dispatcher to be the current component being called.
-            rootClone.state.counter = 0;
+            if (rootClone.state) {
+                rootClone.state.counter = 0;
+            }
             window.currentStateDispatcher = rootClone;
 
             // Call component to get children
