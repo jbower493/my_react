@@ -52,6 +52,11 @@ export function vdomNaryToBinary(root, parent) {
         // Call component to get children
         rootChildren = [root.type(root.props)];
 
+        // Mark effect for running after render
+        if (root.effects) {
+            root.effects.shouldRun = true;
+        }
+
         root.meta = {
             tempCalculatedChildren: rootChildren,
         };

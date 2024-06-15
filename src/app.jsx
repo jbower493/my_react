@@ -31,6 +31,18 @@ import React from "../packages/react";
 function AppKid() {
     const [secondCount, setSecondCount] = React.useState(0);
 
+    React.useEffect(() => {
+        console.log("my first effect ran");
+    }, []);
+
+    React.useEffect(() => {
+        console.log("my second effect ran");
+    }, [secondCount]);
+
+    React.useEffect(() => {
+        console.log("my third effect ran");
+    });
+
     return (
         <div>
             <p>{secondCount}</p>

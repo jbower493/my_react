@@ -53,10 +53,15 @@ function vdomNaryToBinaryUpdate(root, parent, newType, newProps, newSiblings) {
             rootClone.state =
                 root.meta.lastRenderedNode?.state || rootClone.state;
 
-            // Set the current state dispatcher to be the current component being called.
+            // Reset state and effect counters
             if (rootClone.state) {
                 rootClone.state.counter = 0;
             }
+            if (rootClone.effects) {
+                rootClone.effects.counter = 0;
+            }
+
+            // Set the current state dispatcher to be the current component being called.
             window.currentStateDispatcher = rootClone;
 
             // Call component to get children

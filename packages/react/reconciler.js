@@ -18,6 +18,24 @@ function flushToHostRerender(hostConfig, hostElement, newVdom) {
         node.stateNode = null;
 
         if (typeof node.type === "function") {
+            // Run effects on update
+            if (node.effects) {
+                node.effects?.values?.forEach((effect) => {
+                    // Only run if if there is no dependency array, or if any dependency has changed from prev render
+                    const shouldRunEffect =
+                        !effect.currentDeps ||
+                        effect.currentDeps.some(
+                            (currentDep, depIndex) =>
+                                currentDep !== effect.prevDeps[depIndex]
+                        );
+
+                    if (shouldRunEffect) {
+                        effect.callback();
+                    }
+                });
+                node.effects.shouldRun = false;
+            }
+
             return;
         }
 
@@ -62,6 +80,13 @@ function flushToHost(hostConfig, hostElement, vdom) {
     // Traverse vdom and render the nodes by calling functions provided by the host config
     function traversalCallback(node) {
         if (typeof node.type === "function") {
+            // Run effects on mount
+            if (node.effects) {
+                node.effects?.values?.forEach((effect) => {
+                    effect.callback();
+                });
+            }
+
             return;
         }
 
