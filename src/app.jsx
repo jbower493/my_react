@@ -78,7 +78,7 @@ function Users({ name }) {
             .then((res) => res.json())
             .then((data) => {
                 setIsLoading(false);
-                // setUsers(data);
+                setUsers(data);
             });
     }, []);
 
@@ -86,7 +86,7 @@ function Users({ name }) {
         <div>
             <h2>{name || "Default Users Page Name"}</h2>
             {isLoading ? <div>Loading users...</div> : <div>Users fetched</div>}
-            {/* <div>{users?.info?.seed || "Nothing yet"}</div> */}
+            <div>{users?.info?.seed || "Nothing yet"}</div>
         </div>
     );
 }

@@ -44,14 +44,25 @@ function vdomNaryToBinaryUpdate(root, parent, newType, newProps, newSiblings) {
     // If it's a component fiber and it's not above the rerendered component in the tree, call it again with newProps || old props to get new children. If it's not a component, set newProps on alternate
     if (typeof rootClone.type === "function") {
         window.shouldRerender =
-            root === window.rerenderedComponent ||
-            root.meta.lastRenderedNode === window.rerenderedComponent ||
+            root.componentId === window.rerenderedComponent.componentId ||
+            root.meta.lastRenderedNode?.componentId ===
+                window.rerenderedComponent.componentId ||
             window.shouldRerender;
 
         if (window.shouldRerender) {
             // Get most up to date state (after setState has been called)
-            rootClone.state =
-                root.meta.lastRenderedNode?.state || rootClone.state;
+            function getLatestState() {
+                // If this is the rerendered component, get the state from the actual node that called setState (this may be an older node, for example if setState is called inside of a promise, the node that calls setState will be further back than the previous render)
+                if (
+                    root.componentId === window.rerenderedComponent.componentId
+                ) {
+                    return window.rerenderedComponent.state;
+                }
+
+                return root.meta.lastRenderedNode?.state || rootClone.state;
+            }
+
+            rootClone.state = getLatestState();
 
             // Reset state and effect counters
             if (rootClone.state) {

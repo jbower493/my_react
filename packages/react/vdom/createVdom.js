@@ -1,4 +1,5 @@
 import { Fiber } from "./Fiber";
+import { generateUniqueId } from "../utils";
 
 function traverseNaryTree(root, parent, nextSiblings) {
     console.log("node: ", root.data);
@@ -60,6 +61,8 @@ export function vdomNaryToBinary(root, parent) {
         root.meta = {
             tempCalculatedChildren: rootChildren,
         };
+
+        root.componentId = generateUniqueId();
     }
 
     if (rootChildren) {
