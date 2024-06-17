@@ -12,6 +12,8 @@ function traverseBinaryTree(root, callback) {
 }
 
 function flushToHostRerender(hostConfig, hostElement, newVdom) {
+    document.getElementById("root").firstChild.remove();
+
     // Traverse vdom and render the nodes by calling functions provided by the host config
     function traversalCallback(node) {
         node.alternate = null;
@@ -37,6 +39,95 @@ function flushToHostRerender(hostConfig, hostElement, newVdom) {
             }
 
             return;
+        }
+
+        const element = node.type
+            ? hostConfig.createNode(node)
+            : hostConfig.createTextNode(node.props);
+
+        function getNodeToAppendTo() {
+            if (!node.parent) {
+                return hostElement;
+            }
+
+            let nearestParentWithStateNode = node.parent;
+
+            while (!nearestParentWithStateNode.stateNode) {
+                if (!nearestParentWithStateNode.parent) {
+                    nearestParentWithStateNode = { stateNode: hostElement };
+                } else {
+                    nearestParentWithStateNode =
+                        nearestParentWithStateNode.parent;
+                }
+            }
+
+            return nearestParentWithStateNode.stateNode;
+        }
+
+        const nodeToAppendTo = getNodeToAppendTo();
+
+        if (!nodeToAppendTo) {
+            throw new Error("Cannot find a node to attach to");
+        }
+
+        hostConfig.appendChildToParent(nodeToAppendTo, element);
+
+        node.stateNode = element;
+    }
+
+    traverseBinaryTree(newVdom, traversalCallback);
+}
+
+function flushToHostRerenderProper(hostConfig, hostElement, newVdom) {
+    // Traverse vdom and render the nodes by calling functions provided by the host config
+    function traversalCallback(node) {
+        const frozenAlternate = node.alternate;
+        node.alternate = null;
+        const frozenStateNode = node.stateNode;
+        node.stateNode = null;
+
+        if (typeof node.type === "function") {
+            // Run effects on update
+            if (node.effects) {
+                node.effects?.values?.forEach((effect) => {
+                    // Only run if if there is no dependency array, or if any dependency has changed from prev render
+                    const shouldRunEffect =
+                        !effect.currentDeps ||
+                        effect.currentDeps.some(
+                            (currentDep, depIndex) =>
+                                currentDep !== effect.prevDeps[depIndex]
+                        );
+
+                    if (shouldRunEffect) {
+                        effect.callback();
+                    }
+                });
+                node.effects.shouldRun = false;
+            }
+
+            return;
+        }
+
+        // If there is an already existing state node of the same type, and it's not a text node, reuse it
+        if (
+            frozenStateNode &&
+            node.type &&
+            frozenStateNode.tagName.toLowerCase() === node.type
+        ) {
+            hostConfig.updateNode(
+                frozenStateNode,
+                frozenAlternate.props,
+                node.props
+            );
+
+            node.stateNode = frozenStateNode;
+
+            return;
+        }
+
+        // If there's an existing state node of a different type, or it's a text node, remove it before creating new one
+        if (frozenStateNode) {
+            hostConfig.removeNode(frozenStateNode);
         }
 
         const element = node.type
@@ -151,10 +242,8 @@ export class Reconciler {
 
         const newVdom = updateVdom(vdomNode);
 
-        document.getElementById("root").firstChild.remove();
-
         // Need to properly implement "updateContainer" rather than this
-        flushToHostRerender(
+        flushToHostRerenderProper(
             hostConfig,
             document.getElementById("root"),
             newVdom

@@ -2,7 +2,7 @@ import React from "../packages/react";
 
 // function Kevin() {
 //     const [count, setCount] = React.useState(0);
-//     console.log("kev");
+
 //     return (
 //         <h2 id="headingTwo" onClick={() => setCount(count + 1)}>
 //             Kevin's count: {count}
@@ -13,7 +13,7 @@ import React from "../packages/react";
 // export default function App() {
 //     const [name] = React.useState("Jim");
 //     const [count, setCount] = React.useState(0);
-//     console.log("jims app");
+
 //     return (
 //         <div className="app">
 //             <h1 id="headingOne" onClick={() => setCount(count + 1)}>
@@ -24,45 +24,6 @@ import React from "../packages/react";
 //             ) : (
 //                 <Kevin />
 //             )}
-//         </div>
-//     );
-// }
-
-// function AppKid() {
-//     const [secondCount, setSecondCount] = React.useState(0);
-
-//     React.useEffect(() => {
-//         console.log("my first effect ran");
-//     }, []);
-
-//     React.useEffect(() => {
-//         console.log("my second effect ran");
-//     }, [secondCount]);
-
-//     React.useEffect(() => {
-//         console.log("my third effect ran");
-//     });
-
-//     return (
-//         <div>
-//             <p>{secondCount}</p>
-//             <button onClick={() => setSecondCount(secondCount + 1)}>
-//                 Increment second
-//             </button>
-//             <h4>Count</h4>
-//         </div>
-//     );
-// }
-
-// export default function App() {
-//     const [count, setCount] = React.useState(0);
-
-//     return (
-//         <div>
-//             <p>{count}</p>
-//             <button onClick={() => setCount(count + 1)}>Increment</button>
-//             <h2>Count</h2>
-//             <AppKid />
 //         </div>
 //     );
 // }
@@ -100,9 +61,19 @@ export default function App() {
             <input
                 placeholder="Set users page name"
                 value={usersPageName}
-                onChange={(e) => setUsersPageName(e.target.value)}
+                onInput={(e) => setUsersPageName(e.target.value)}
             />
             <Users name={usersPageName} />
         </div>
     );
 }
+
+// export default function App() {
+//     const [count, setCount] = React.useState(0);
+
+//     return (
+//         <section>
+//             <h1 onClick={() => setCount(count + 1)}>{count}</h1>
+//         </section>
+//     );
+// }

@@ -6,25 +6,51 @@ const hostConfig = {
         const hostNode = document.createElement(reactNode.type);
 
         // Pass all props to dom element
-        Object.keys(reactNode.props).forEach((prop) => {
-            if (prop === "children") {
+        Object.entries(reactNode.props).forEach(([key, value]) => {
+            if (key === "children") {
                 return;
             }
 
-            if (typeof reactNode.props[prop] === "function") {
-                return hostNode.addEventListener(
-                    mapEventName(prop),
-                    reactNode.props[prop]
-                );
+            if (typeof value === "function") {
+                return hostNode.addEventListener(mapEventName(key), value);
             }
 
-            hostNode.setAttribute(
-                prop === "className" ? "class" : prop,
-                reactNode.props[prop]
+            return hostNode.setAttribute(
+                key === "className" ? "class" : key,
+                value
             );
         });
 
         return hostNode;
+    },
+
+    updateNode(node, oldProps, newProps) {
+        Object.entries(oldProps).forEach(([key, value]) => {
+            if (key === "children") {
+                return;
+            }
+
+            if (typeof value === "function") {
+                return node.removeEventListener(mapEventName(key), value);
+            }
+
+            return node.removeAttribute(key);
+        });
+
+        Object.entries(newProps).forEach(([key, value]) => {
+            if (key === "children") {
+                return;
+            }
+
+            if (typeof value === "function") {
+                return node.addEventListener(mapEventName(key), value);
+            }
+
+            return node.setAttribute(
+                key === "className" ? "class" : key,
+                value
+            );
+        });
     },
 
     createTextNode(text) {

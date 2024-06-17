@@ -4,6 +4,8 @@ export function mapEventName(attributeName) {
             return "click";
         case "onChange":
             return "change";
+        case "onInput":
+            return "input";
         default:
             return "";
     }
