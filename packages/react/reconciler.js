@@ -80,35 +80,16 @@ function flushToHostRerender(hostConfig, hostElement, newVdom) {
 
 function flushToHostRerenderProper(hostConfig, hostElement, newVdom) {
     // Traverse vdom and render the nodes by calling functions provided by the host config
-    function traversalCallback(node) {
+    function flushCallback(node) {
         const frozenAlternate = node.alternate;
         node.alternate = null;
 
         if (typeof node.type === "function") {
-            // Run effects on update
-            if (node.effects) {
-                node.effects?.values?.forEach((effect) => {
-                    // Only run if if there is no dependency array, or if any dependency has changed from prev render
-                    const shouldRunEffect =
-                        !effect.currentDeps ||
-                        effect.currentDeps.some(
-                            (currentDep, depIndex) =>
-                                currentDep !== effect.prevDeps[depIndex]
-                        );
-
-                    if (shouldRunEffect) {
-                        effect.callback();
-                    }
-                });
-                node.effects.shouldRun = false;
-            }
-
             return;
         }
 
         // TODO: it's not working because for some reason the node.stateNode of the section here is undefined, so it's missing the if statement. Could be todo with the fetch, similar to the other bug where it was getting a really old version of the node? But don't think it's that
-        debugger;
-        if (node.type === "section") console.log(node.stateNode);
+
         // If there is an already existing state node of the same type, and it's not a text node, reuse it
         if (
             node.stateNode &&
@@ -166,20 +147,37 @@ function flushToHostRerenderProper(hostConfig, hostElement, newVdom) {
         node.stateNode = element;
     }
 
-    traverseBinaryTree(newVdom, traversalCallback);
+    // Wait until everything has finished rendering, then go back through and call all the effects
+    function effectsCallback(node) {
+        if (typeof node.type === "function") {
+            // Run effects on update
+            if (node.effects) {
+                node.effects?.values?.forEach((effect) => {
+                    // Only run if if there is no dependency array, or if any dependency has changed from prev render
+                    const shouldRunEffect =
+                        !effect.currentDeps ||
+                        effect.currentDeps.some(
+                            (currentDep, depIndex) =>
+                                currentDep !== effect.prevDeps[depIndex]
+                        );
+
+                    if (shouldRunEffect) {
+                        effect.callback();
+                    }
+                });
+                node.effects.shouldRun = false;
+            }
+        }
+    }
+
+    traverseBinaryTree(newVdom, flushCallback);
+    traverseBinaryTree(newVdom, effectsCallback);
 }
 
 function flushToHost(hostConfig, hostElement, vdom) {
     // Traverse vdom and render the nodes by calling functions provided by the host config
-    function traversalCallback(node) {
+    function flushCallback(node) {
         if (typeof node.type === "function") {
-            // Run effects on mount
-            if (node.effects) {
-                node.effects?.values?.forEach((effect) => {
-                    effect.callback();
-                });
-            }
-
             return;
         }
 
@@ -216,7 +214,20 @@ function flushToHost(hostConfig, hostElement, vdom) {
         node.stateNode = element;
     }
 
-    traverseBinaryTree(vdom, traversalCallback);
+    // Wait until everything has finished rendering, then go back through and call all the effects
+    function effectsCallback(node) {
+        if (typeof node.type === "function") {
+            // Run effects on mount
+            if (node.effects) {
+                node.effects?.values?.forEach((effect) => {
+                    effect.callback();
+                });
+            }
+        }
+    }
+
+    traverseBinaryTree(vdom, flushCallback);
+    traverseBinaryTree(vdom, effectsCallback);
 }
 
 export class Reconciler {
@@ -241,7 +252,6 @@ export class Reconciler {
     // Temp
     rerender(vdomNode) {
         const { hostConfig } = this;
-
         const newVdom = updateVdom(vdomNode);
 
         // Need to properly implement "updateContainer" rather than this
