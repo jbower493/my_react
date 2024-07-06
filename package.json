@@ -2,13 +2,16 @@
     "name": "my_react",
     "version": "1.0.0",
     "main": "index.js",
+    "type": "module",
     "license": "MIT",
     "devDependencies": {
+        "@types/node": "^20.14.10",
         "parcel": "^2.9.3",
-        "typescript": "^5.1.6"
+        "tsx": "^4.16.2",
+        "typescript": "^5.5.3"
     },
     "scripts": {
-        "start": "yarn parcel src/index.html"
-    },
-    "dependencies": {}
+        "start": "yarn parcel src/index.html",
+        "dev": "yarn tsx watch packages/bundler/index.ts"
+    }
 }
