@@ -1,3 +1,5 @@
 {
-    "entryFile": "src/test.html"
+    "htmlEntryFile": "src/test.html",
+    "jsEntryFile": "src/test.js",
+    "jsEntryFileRelative": "./test.js"
 }

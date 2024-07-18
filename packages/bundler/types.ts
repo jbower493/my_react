@@ -1,7 +1,10 @@
 import http from "node:http";
 
 export type BundlerConfig = {
-    entryFile: string;
+    htmlEntryFile: string;
+    jsEntryFile: string;
+    // TODO: remove this once I can calculate the relative path
+    jsEntryFileRelative: string;
 };
 
 export type RequestHandler =

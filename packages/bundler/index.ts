@@ -18,12 +18,35 @@ const requestHandler: RequestHandler = (req, res) => {
     });
     const bundlerConfigObj = JSON.parse(bundlerConfig) as BundlerConfig;
 
-    const entryFileContent = fs.readFileSync(
-        path.join(rootDirPath, bundlerConfigObj.entryFile),
-        { encoding: "utf-8" }
+    const htmlEntryFilePath = path.join(
+        rootDirPath,
+        bundlerConfigObj.htmlEntryFile
     );
+    const htmlEntryFileContent = fs.readFileSync(htmlEntryFilePath, {
+        encoding: "utf-8",
+    });
 
-    res.end(entryFileContent);
+    const jsEntryFilePath = path.join(
+        rootDirPath,
+        bundlerConfigObj.jsEntryFile
+    );
+    const jsEntryFilePathRelativeToHtmlEntryFile =
+        bundlerConfigObj.jsEntryFileRelative;
+    // const jsEntryFileContent = fs.readFileSync(htmlEntryFilePath, {
+    //     encoding: "utf-8",
+    // });
+
+    // Insert a scrip with src of js entry file into the html entry file before serving it
+
+    const htmlContentBodyEndSplit = htmlEntryFileContent.split("</body>");
+    const newHtmlContentArray = [
+        htmlContentBodyEndSplit[0] +
+            `    <script src="${jsEntryFilePathRelativeToHtmlEntryFile}"></script>\n`,
+        htmlContentBodyEndSplit[1],
+    ];
+    const htmlEntryFileContentWithScript = newHtmlContentArray.join("</body>");
+
+    res.end(htmlEntryFileContentWithScript);
 };
 
 const server = http.createServer(requestHandler);
