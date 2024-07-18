@@ -88,8 +88,6 @@ function flushToHostRerenderProper(hostConfig, hostElement, newVdom) {
             return;
         }
 
-        // TODO: it's not working because for some reason the node.stateNode of the section here is undefined, so it's missing the if statement. Could be todo with the fetch, similar to the other bug where it was getting a really old version of the node? But don't think it's that
-
         // If there is an already existing state node of the same type, and it's not a text node, reuse it
         if (
             node.stateNode &&
