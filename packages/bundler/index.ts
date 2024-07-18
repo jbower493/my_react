@@ -2,19 +2,14 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { BundlerConfig } from "./types.js";
+import type { BundlerConfig, RequestHandler } from "./types.js";
 
 const rootDirPath = path.join(
     path.dirname(fileURLToPath(import.meta.url)),
     "../.."
 );
 
-const requestHandler:
-    | http.RequestListener<
-          typeof http.IncomingMessage,
-          typeof http.ServerResponse
-      >
-    | undefined = (req, res) => {
+const requestHandler: RequestHandler = (req, res) => {
     res.writeHead(200, { "Content-Type": "text/html" });
 
     const bundlerConfigFilePath = path.join(rootDirPath, "bundler.config.json");
